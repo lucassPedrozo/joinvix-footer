@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Joinvix Footer Brand & Background
  * Description: Adiciona a logo Joinvix no final da página com seletor de cor de fundo.
- * Version: 1.3
+ * Version: 1.3.1
  * Author: Lucas Pedrozo
  * Text Domain: joinvix-footer
  */
@@ -41,19 +41,19 @@ class JoinvixFooterPlugin {
     }
 
     public function register_settings() {
-        // Melhoria: Adicionando funções de sanitização para todos os inputs (Segurança)
+        // Funções de sanitização para todos os inputs (Segurança)
         register_setting('joinvix_footer_group', 'joinvix_footer_enabled', 'absint');
         register_setting('joinvix_footer_group', 'joinvix_footer_mode', 'sanitize_text_field');
         register_setting('joinvix_footer_group', 'joinvix_footer_link', 'esc_url_raw');
         register_setting('joinvix_footer_group', 'joinvix_footer_bg_color', 'sanitize_hex_color');
         
-        // Melhoria: Removendo hardcode do CDN e transformando em configurações
+        // Configurações do CDN
         register_setting('joinvix_footer_group', 'joinvix_footer_cdn_user', 'sanitize_text_field');
         register_setting('joinvix_footer_group', 'joinvix_footer_cdn_repo', 'sanitize_text_field');
     }
 
     public function settings_page_content() {
-        // Melhoria: Verificação dupla de permissão (Segurança)
+        // Verificação dupla de permissão (Segurança)
         if (!current_user_can('manage_options')) {
             wp_die(__('Você não tem permissão para acessar esta página.', 'joinvix-footer'));
         }
@@ -68,8 +68,10 @@ class JoinvixFooterPlugin {
                 $mode     = get_option('joinvix_footer_mode', 'light');
                 $link     = get_option('joinvix_footer_link', 'https://www.joinvix.com.br/');
                 $bg_color = get_option('joinvix_footer_bg_color', '#ffffff');
-                $cdn_user = get_option('joinvix_footer_cdn_user', 'seu-usuario');
-                $cdn_repo = get_option('joinvix_footer_cdn_repo', 'seu-repo');
+                
+                // Atualizado para os valores reais do repositório
+                $cdn_user = get_option('joinvix_footer_cdn_user', 'lucassPedrozo');
+                $cdn_repo = get_option('joinvix_footer_cdn_repo', 'joinvix-footer');
                 ?>
                 <table class="form-table">
                     <tr>
@@ -117,15 +119,16 @@ class JoinvixFooterPlugin {
         $mode     = get_option('joinvix_footer_mode', 'light');
         $bg_color = get_option('joinvix_footer_bg_color', '#ffffff');
         $link     = get_option('joinvix_footer_link', 'https://www.joinvix.com.br/');
-        $cdn_user = get_option('joinvix_footer_cdn_user', 'seu-usuario');
-        $cdn_repo = get_option('joinvix_footer_cdn_repo', 'seu-repo');
+        $cdn_user = get_option('joinvix_footer_cdn_user', 'lucassPedrozo');
+        $cdn_repo = get_option('joinvix_footer_cdn_repo', 'joinvix-footer');
 
         // Impede a renderização se os dados do CDN não estiverem preenchidos corretamente
-        if (empty($cdn_user) || empty($cdn_repo) || $cdn_user === 'seu-usuario') {
+        if (empty($cdn_user) || empty($cdn_repo)) {
             return; 
         }
 
-        $file_path = ($mode === 'dark') ? "logo-dark.png" : "logo-light.png";
+        // AJUSTE: Adicionado o diretório 'assets/' no caminho do arquivo
+        $file_path = ($mode === 'dark') ? "assets/logo-dark.png" : "assets/logo-light.png";
         
         // urlencode garante que espaços ou caracteres especiais não quebrem a URL do CDN
         $img_url   = "https://cdn.jsdelivr.net/gh/" . urlencode($cdn_user) . "/" . urlencode($cdn_repo) . "@main/{$file_path}";
